@@ -20,6 +20,6 @@ files = (df.iloc[:, 0]).tolist()
 for file in files:
     paths = glob.glob(output + file + '*.fastq*')
     if len(paths) == 0:
-        workflow.add_task("fastq-dump " + file + " --gzip -O " + output)
+        workflow.add_task("fastq-dump " + file + " --gzip -O " + output, targets=output + file  + ".fastq.gz")
 
 workflow.go()

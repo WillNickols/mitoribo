@@ -52,7 +52,6 @@ dependencies:
   - samtools=1.9=h10a08f8_12
   - setuptools=44.0.0=py27_0
   - sqlite=3.31.1=h7b6447c_0
-  - sra-tools=2.8.0=0
   - tbb=2020.3=hfd86e86_0
   - tk=8.6.12=h1ccaba5_0
   - tophat=2.1.1=py27_0
