@@ -11,12 +11,15 @@ from pathlib import Path
 # Parse arguments
 workflow = Workflow(version="0.1", description="MAG and SGB workflow")
 workflow.add_argument("adapter", desc="Adapter sequence to trim")
-workflow.add_argument("refs", desc="File directory with genome.fasta and rna_coding.fasta")
+workflow.add_argument("genome", desc="File name of yeast genome")
+workflow.add_argument("rna-coding", desc="File name of rna coding fasta for decontamination")
 workflow.add_argument("mitochrom", desc="Name of mitochondrion chromosome in reference sequence")
 workflow.add_argument("input-extension", desc="The input file extension", default="fastq.gz")
 workflow.add_argument("tophat-args", desc="Extra tophat arguments", default="")
+workflow.add_argument("min-read-length", desc="Minimum cleaned read length", type=int, default=23)
+workflow.add_argument("max-read-length", desc="Maximum cleaned read length", type=int, default=41)
 workflow.add_argument("keep-intermediates", desc="Don't delete intermediate files", action="store_true")
-workflow.add_argument("cores", desc="The number of CPU cores allocated to the job", type=int, default=4)
+workflow.add_argument("cores", desc="The number of CPU cores allocated to the job", type=int, default=1)
 args = workflow.parse_args()
 
 this_folder = os.path.realpath(__file__).rsplit("/", 1)[0] + "/"
@@ -29,7 +32,6 @@ output = os.path.abspath(args.output.rstrip("/")) + "/"
 adapter_seq = args.adapter
 mitochrom = args.mitochrom
 input_extension = args.input_extension
-ref_seq_dir = args.refs
 tophat_args = args.tophat_args
 
 if input_extension not in ["fastq", "fastq.gz"]:
@@ -41,6 +43,8 @@ names = set((file.split("." + input_extension)[0]).split("/")[-1] for file in pa
 
 if len(paths) == 0:
 	raise ValueError("No input files")
+
+os.makedirs(output, exist_ok=True)
 
 tmp_dir = output + "tmp/"
 os.makedirs(tmp_dir, exist_ok=True)
@@ -100,7 +104,7 @@ def list_depends(name, step):
 	elif step == "cut_5_reads":
 		depends_list = [cut_reads + name + ".fastq"]
 	elif step == "split_tRNAs":
-		depends_list = [ref_seq_dir + "rna_coding.fasta"]
+		depends_list = [os.path.abspath(args.rna_coding)]
 	elif step == "decon_non_tRNA":
 		depends_list = [cut_reads_5 + name + ".fastq",
 		decon_dir + "nontRNA.1.ebwt", 
@@ -122,7 +126,7 @@ def list_depends(name, step):
 	elif step == "subset_reads":
 		depends_list = [non_tRNA + name + ".fastq", tRNA + name + ".fastq"]
 	elif step == "build_ref_bowtie_db":
-		depends_list = [ref_seq_dir + "genome.fasta"]
+		depends_list = [os.path.abspath(args.genome)]
 	elif step == "tophat":
 		depends_list = [cleaned_reads + name + ".fastq",
 		genome_bt + "full_genome.1.bt2", 
@@ -305,7 +309,7 @@ for name in names:
 ################################################
 
 def subset_reads(name):
-	command = "python " + scripts_folder + "keep_decon_reads.py -i [depends[0]] --decon [depends[1]] -o [targets[0]]"
+	command = "python " + scripts_folder + "keep_decon_reads.py -i [depends[0]] --decon [depends[1]] -o [targets[0]] --min " + str(args.min_read_length) + " --max " + str(args.max_read_length)
 	return str(command)
 
 for name in names:
