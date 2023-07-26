@@ -27,7 +27,8 @@ Create a folder called `refseqs` and download a yeast genome into it (such as [t
   (--keep-intermediates) \
   (--min-read-length) \
   (--max-read-length) \
-  (--cores [N])
+  (--cores [N]) \
+  (--local-jobs [N])
 ```
 
 For example,
@@ -41,5 +42,6 @@ For example,
   --mitochrom NC_001224.1 \
   --input-extension fastq \
   --keep-intermediates \
-  --cores 4
+  --cores 4 \
+  --local-jobs 8
 ```
