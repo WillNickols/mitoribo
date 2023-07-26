@@ -215,7 +215,7 @@ if input_extension == "fastq.gz":
 ################
 
 def cutadapt(name):
-	command = "cutadapt -a " + adapter_seq + " -o [targets[0]] [depends[0]] --cores=" + str(cores)
+	command = "cutadapt -a " + adapter_seq + " -o [targets[0]] [depends[0]]"
 	return str(command)
 
 for name in names:
