@@ -98,7 +98,7 @@ local_jobs = args.jobs
 def list_depends(name, step):
 	if step == "gunzip":
 		depends_list = [os.path.abspath(in_dir.rstrip("/")) + "/" + name + "." + input_extension]
-	if step == "cutadapt":
+	elif step == "cutadapt":
 		if input_extension == "fastq":
 			depends_list = [os.path.abspath(in_dir.rstrip("/")) + "/" + name + ".fastq"]
 		else:
@@ -155,7 +155,7 @@ def list_depends(name, step):
 def list_targets(name, step):
 	if step == "gunzip":
 		target_list = [gunzip_dir + name + ".fastq"]
-	if step == "cutadapt":
+	elif step == "cutadapt":
 		target_list = [cut_reads + name + ".fastq"]
 	elif step == "cut_5_reads":
 		target_list = [cut_reads_5 + name + ".fastq"]
