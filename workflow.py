@@ -229,12 +229,12 @@ for name in names:
 # cut 5-prime end #
 ###################
 
-def cut_5_reads(name):
+def cut_5_reads_fun(name):
 	command = "python " + scripts_folder + "chop_first_nuc.py -i [depends[0]] -o [targets[0]]"
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=cut_5_reads(name),
+	workflow.add_task(actions=cut_5_reads_fun(name),
 		depends=list_depends(name=name, step="cut_5_reads"),
 		targets=list_targets(name=name, step="cut_5_reads"),
 		name="Cut 1 nt on 5-prime end for " + name.split("/")[-1]
@@ -244,7 +244,7 @@ for name in names:
 # build decontamination indexes #
 #################################
 
-def split_tRNAs(name):
+def split_tRNAs_fun(name):
 	command = '''{a} && {b} && {c}'''.format(
 		a = "python " + scripts_folder + "split_tRNAs.py -i [depends[0]] -o " + decon_dir + "/rna_coding",
 		b = "bowtie-build " + decon_dir + "/rna_coding_nontRNA.fasta " + decon_dir + "/nontRNA",
@@ -253,7 +253,7 @@ def split_tRNAs(name):
 
 	return str(command)
 
-workflow.add_task(actions=split_tRNAs(name),
+workflow.add_task(actions=split_tRNAs_fun(name),
 	depends=list_depends(name=name, step="split_tRNAs"),
 	targets=list_targets(name=name, step="split_tRNAs"),
 	name="Build decontamination indexes"
@@ -263,12 +263,12 @@ workflow.add_task(actions=split_tRNAs(name),
 # decontaminate non-tRNA #
 ##########################
 
-def decon_non_tRNA(name):
+def decon_non_tRNA_fun(name):
 	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir + "/nontRNA [depends[0]] /dev/null --un [targets[0]]"
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=decon_non_tRNA(name),
+	workflow.add_task(actions=decon_non_tRNA_fun(name),
 		depends=list_depends(name=name, step="decon_non_tRNA"),
 		targets=list_targets(name=name, step="decon_non_tRNA"),
 		name="Decontaminate the non-tRNA for " + name.split("/")[-1]
@@ -278,12 +278,12 @@ for name in names:
 # remove 3 nt for tRNA decon #
 ##############################
 
-def last_3_nucs_gone(name):
+def last_3_nucs_gone_fun(name):
 	command = "python " + scripts_folder + "chop_last_3_nuc.py -i [depends[0]] -o [targets[0]]"
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=last_3_nucs_gone(name),
+	workflow.add_task(actions=last_3_nucs_gone_fun(name),
 		depends=list_depends(name=name, step="last_3_nucs_gone"),
 		targets=list_targets(name=name, step="last_3_nucs_gone"),
 		name="Remove last 3 nucleotides for decontaminating " + name.split("/")[-1]
@@ -293,12 +293,12 @@ for name in names:
 # decontaminate tRNA #
 ######################
 
-def decon_tRNA(name):
+def decon_tRNA_fun(name):
 	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir + "/nontRNA [depends[0]] /dev/null --un [targets[0]]"
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=decon_tRNA(name),
+	workflow.add_task(actions=decon_tRNA_fun(name),
 		depends=list_depends(name=name, step="decon_tRNA"),
 		targets=list_targets(name=name, step="decon_tRNA"),
 		name="Decontaminate the tRNA for " + name.split("/")[-1]
@@ -308,12 +308,12 @@ for name in names:
 # subset reads to only the decontaminated ones #
 ################################################
 
-def subset_reads(name):
+def subset_reads_fun(name):
 	command = "python " + scripts_folder + "keep_decon_reads.py -i [depends[0]] --decon [depends[1]] -o [targets[0]] --min " + str(args.min_read_length) + " --max " + str(args.max_read_length)
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=subset_reads(name),
+	workflow.add_task(actions=subset_reads_fun(name),
 		depends=list_depends(name=name, step="subset_reads"),
 		targets=list_targets(name=name, step="subset_reads"),
 		name="Finish decontaminating for " + name.split("/")[-1]
