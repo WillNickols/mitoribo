@@ -37,7 +37,7 @@ tophat_args = args.tophat_args
 if input_extension not in ["fastq", "fastq.gz"]:
 	raise ValueError("Input extension must be fastq or fastq.gz")
 
-# Get filepath without paired/unpaired ending
+# Get filepaths
 paths = glob.glob(os.path.abspath(in_dir.rstrip("/")) + "/" + '*.' + input_extension)
 names = set((file.split("." + input_extension)[0]).split("/")[-1] for file in paths)
 
@@ -149,7 +149,7 @@ def list_depends(name, step):
 # function to list targets #
 ############################
 
-def list_targets(name, step, paired):
+def list_targets(name, step):
 	if step == "gunzip":
 		target_list = [gunzip_dir + name + ".fastq"]
 	if step == "cutadapt":
