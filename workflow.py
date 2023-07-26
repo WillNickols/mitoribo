@@ -143,7 +143,7 @@ def list_depends(name, step):
 	elif step == "get_chromo_coverage":
 		depends_list = [coverage_dir + name + "_coverage.txt"]
 	elif step == "delete_tmp":
-		depends_list = [tophat_out + name + "/accepted_hits.bam"]
+		depends_list = [tophat_out + name_sub + "/accepted_hits.bam" for name_sub in name]
 	else:
 		raise ValueError("Invalid step")
 	return depends_list
@@ -257,8 +257,8 @@ def split_tRNAs_fun(name):
 	return str(command)
 
 workflow.add_task(actions=split_tRNAs_fun(name),
-	depends=list_depends(name=name, step="split_tRNAs"),
-	targets=list_targets(name=name, step="split_tRNAs"),
+	depends=list_depends(name="", step="split_tRNAs"),
+	targets=list_targets(name="", step="split_tRNAs"),
 	name="Build decontamination indexes"
 	)
 
@@ -331,8 +331,8 @@ def build_ref_bowtie_db(name):
 	return str(command)
 
 workflow.add_task(actions=build_ref_bowtie_db(name),
-	depends=list_depends(name=name, step="build_ref_bowtie_db"),
-	targets=list_targets(name=name, step="build_ref_bowtie_db"),
+	depends=list_depends(name="", step="build_ref_bowtie_db"),
+	targets=list_targets(name="", step="build_ref_bowtie_db"),
 	name="Build tophat reference index"
 	)
 
@@ -391,7 +391,7 @@ for name in names:
 
 if not args.keep_intermediates:
 	workflow.add_task(actions="rm -r " + tmp_dir,
-		depends=list_depends(name=name, step="delete_tmp"),
+		depends=list_depends(name=names, step="delete_tmp"),
 		name="Delete temporary files"
 		)
 
