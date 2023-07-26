@@ -32,13 +32,13 @@ The workflow also allows extra arguments to TopHat2 as a string in quotes, an op
   --genome [PATH TO YEAST GENOME] \
   --rna-coding [PATH TO RNA CODING FILE] \
   --input-extension [fastq/fastq.gz] \
-  (--mitochrom [FIRST LINE UP TO A SPACE OF MITOCHONDRION FASTA ENTRY]) \
-  (--tophat-args="[EXTRA TOPHAT ARGUMENTS]") \
+  (--mitochrom [DEFAULT:None]) \
+  (--tophat-args="[DEFAULT:None]") \
   (--keep-intermediates) \
   (--min-read-length [DEFAULT:23]) \
   (--max-read-length [DEFAULT:41]) \
-  (--cores [N]) \
-  (--local-jobs [N])
+  (--cores [DEFAULT:1]) \
+  (--local-jobs [DEFAULT:1])
 ```
 
 An example run is:
