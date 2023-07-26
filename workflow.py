@@ -392,7 +392,7 @@ for name in names:
 ##########################
 
 if not args.keep_intermediates:
-	workflow.add_task(actions="rm -r " + tmp_dir + " && touch tmp_files_removed.done",
+	workflow.add_task(actions="rm -r " + tmp_dir + " && touch [targets[0]]",
 		depends=list_depends(name=names, step="delete_tmp"),
 		targets=list_targets(name="", step="delete_tmp"),
 		name="Delete temporary files"
