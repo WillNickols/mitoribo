@@ -207,7 +207,7 @@ if input_extension == "fastq.gz":
 		workflow.add_task(actions=gunzip(name),
 			depends=list_depends(name=name, step="gunzip"),
 			targets=list_targets(name=name, step="gunzip"),
-			name="Decompress " + name.split("/")[-1]
+			name="Decompress " + name
 			)
 
 ################
@@ -222,7 +222,7 @@ for name in names:
 	workflow.add_task(actions=cutadapt(name),
 		depends=list_depends(name=name, step="cutadapt"),
 		targets=list_targets(name=name, step="cutadapt"),
-		name="Cutadapt for " + name.split("/")[-1]
+		name="Cutadapt for " + name
 		)
 
 ###################
@@ -237,7 +237,7 @@ for name in names:
 	workflow.add_task(actions=cut_5_reads_fun(name),
 		depends=list_depends(name=name, step="cut_5_reads"),
 		targets=list_targets(name=name, step="cut_5_reads"),
-		name="Cut 1 nt on 5-prime end for " + name.split("/")[-1]
+		name="Cut 1 nt on 5-prime end for " + name
 		)
 
 #################################
@@ -246,9 +246,9 @@ for name in names:
 
 def split_tRNAs_fun(name):
 	command = '''{a} && {b} && {c}'''.format(
-		a = "python " + scripts_folder + "split_tRNAs.py -i [depends[0]] -o " + decon_dir + "/rna_coding",
-		b = "bowtie-build " + decon_dir + "/rna_coding_nontRNA.fasta " + decon_dir + "/nontRNA",
-		c = "bowtie-build " + decon_dir + "/rna_coding_tRNA.fasta " + decon_dir + "/tRNA"
+		a = "python " + scripts_folder + "split_tRNAs.py -i [depends[0]] -o " + decon_dir + "rna_coding",
+		b = "bowtie-build " + decon_dir + "rna_coding_nontRNA.fasta " + decon_dir + "nontRNA",
+		c = "bowtie-build " + decon_dir + "rna_coding_tRNA.fasta " + decon_dir + "tRNA"
 		)
 
 	return str(command)
@@ -264,14 +264,14 @@ workflow.add_task(actions=split_tRNAs_fun(name),
 ##########################
 
 def decon_non_tRNA_fun(name):
-	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir + "/nontRNA [depends[0]] /dev/null --un [targets[0]]"
+	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir + "nontRNA [depends[0]] /dev/null --un [targets[0]]"
 	return str(command)
 
 for name in names:
 	workflow.add_task(actions=decon_non_tRNA_fun(name),
 		depends=list_depends(name=name, step="decon_non_tRNA"),
 		targets=list_targets(name=name, step="decon_non_tRNA"),
-		name="Decontaminate the non-tRNA for " + name.split("/")[-1]
+		name="Decontaminate the non-tRNA for " + name
 		)
 
 ##############################
@@ -286,7 +286,7 @@ for name in names:
 	workflow.add_task(actions=last_3_nucs_gone_fun(name),
 		depends=list_depends(name=name, step="last_3_nucs_gone"),
 		targets=list_targets(name=name, step="last_3_nucs_gone"),
-		name="Remove last 3 nucleotides for decontaminating " + name.split("/")[-1]
+		name="Remove last 3 nucleotides for decontaminating " + name
 		)
 
 ######################
@@ -294,14 +294,14 @@ for name in names:
 ######################
 
 def decon_tRNA_fun(name):
-	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir + "/nontRNA [depends[0]] /dev/null --un [targets[0]]"
+	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir + "nontRNA [depends[0]] /dev/null --un [targets[0]]"
 	return str(command)
 
 for name in names:
 	workflow.add_task(actions=decon_tRNA_fun(name),
 		depends=list_depends(name=name, step="decon_tRNA"),
 		targets=list_targets(name=name, step="decon_tRNA"),
-		name="Decontaminate the tRNA for " + name.split("/")[-1]
+		name="Decontaminate the tRNA for " + name
 		)
 
 ################################################
@@ -316,7 +316,7 @@ for name in names:
 	workflow.add_task(actions=subset_reads_fun(name),
 		depends=list_depends(name=name, step="subset_reads"),
 		targets=list_targets(name=name, step="subset_reads"),
-		name="Finish decontaminating for " + name.split("/")[-1]
+		name="Finish decontaminating for " + name
 		)
 
 ################################
@@ -345,7 +345,7 @@ for name in names:
 	workflow.add_task(actions=tophat(name),
 		depends=list_depends(name=name, step="tophat"),
 		targets=list_targets(name=name, step="tophat"),
-		name="Run tophat for " + name.split("/")[-1]
+		name="Run tophat for " + name
 		)
 
 ################
@@ -364,7 +364,7 @@ for name in names:
 	workflow.add_task(actions=samtools(name),
 		depends=list_depends(name=name, step="samtools"),
 		targets=list_targets(name=name, step="samtools"),
-		name="Get coverage depth for " + name.split("/")[-1]
+		name="Get coverage depth for " + name
 		)
 
 ###########################################
@@ -379,7 +379,7 @@ for name in names:
 	workflow.add_task(actions=get_chromo_coverage(name),
 		depends=list_depends(name=name, step="get_chromo_coverage"),
 		targets=list_targets(name=name, step="get_chromo_coverage"),
-		name="Get chromosome coverage depth for " + name.split("/")[-1]
+		name="Get chromosome coverage depth for " + name
 		)
 
 ##########################
