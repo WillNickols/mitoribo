@@ -85,6 +85,9 @@ os.makedirs(last_3_nucs_gone, exist_ok=True)
 tophat_out = output + "tophat_out/"
 os.makedirs(tophat_out, exist_ok=True)
 
+coverage_dir = output + "coverage/"
+os.makedirs(coverage_dir, exist_ok=True)
+
 cores = args.cores
 local_jobs = args.jobs
 
@@ -138,7 +141,7 @@ def list_depends(name, step):
 	elif step == "samtools":
 		depends_list = [tophat_out + name + "/accepted_hits.bam"]
 	elif step == "get_chromo_coverage":
-		depends_list = [output + name + "/coverage.txt"]
+		depends_list = [coverage_dir + name + "_coverage.txt"]
 	elif step == "delete_tmp":
 		depends_list = [tophat_out + name + "/accepted_hits.bam"]
 	else:
@@ -187,9 +190,9 @@ def list_targets(name, step):
 	elif step == "tophat":
 		target_list = [tophat_out + name + "/accepted_hits.bam"]
 	elif step == "samtools":
-		target_list = [output + name + "/coverage.txt"]
+		target_list = [coverage_dir + name + "_coverage.txt"]
 	elif step == "get_chromo_coverage":
-		target_list = [output + name + "/chromo_coverage.txt"]
+		target_list = [coverage_dir + name + "_chromo_coverage.txt"]
 	else:
 		raise ValueError("Invalid step")
 	return target_list
