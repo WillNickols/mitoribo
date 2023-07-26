@@ -230,7 +230,7 @@ for name in names:
 ###################
 
 def cut_5_reads_fun(name):
-	command = "python " + scripts_folder + "chop_first_nuc.py -i [depends[0]] -o [targets[0]]"
+	command = "python " + scripts_folder + "chop_first_nuc.py -i [depends[0]] -o [targets[0]] --min " + str(args.min_read_length)
 	return str(command)
 
 for name in names:
