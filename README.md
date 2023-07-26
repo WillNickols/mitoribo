@@ -77,3 +77,5 @@ The `scripts/download_files.py` script can be used to download many fastq files 
 [PATH TO PYTHON3 WITH ANADAMA2] scripts/download_files.py -i to_download.txt -o [OUTPUT_FOLDER] --local-jobs [N]
 ```
 where `to_download.txt` has one SRR identifier per line and N is the number of parallel downloads.
+
+Make sure you have downloaded and installed SRA tools according to the instructions [here](https://github.com/ncbi/sra-tools/wiki/02.-Installing-SRA-Toolkit).
