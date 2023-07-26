@@ -15,7 +15,7 @@ Create a folder called `refseqs` and download a yeast genome into it (such as [t
 
 ## Running
 ```
-python [PATH TO PYTHON3 WITH ANADAMA2] workflow.py \
+[PATH TO PYTHON3 WITH ANADAMA2] workflow.py \
   -i [FOLDER WITH FASTQS] \
   -o [OUTPUT FOLDER] \
   --adapter [ADAPTER SEQUENCE] \
@@ -32,7 +32,7 @@ python [PATH TO PYTHON3 WITH ANADAMA2] workflow.py \
 
 For example,
 ```
-python /home/czh/anaconda3/bin/python3 workflow.py \
+/home/czh/anaconda3/bin/python3 workflow.py \
   -i /media/czh/Zanlin_Chuankai001/MitoRibo_20230726/input/ \
   -o /media/czh/Zanlin_Chuankai001/MitoRibo_20230726/output/ \
   --adapter CTGTAGGCACCATCAAT \
