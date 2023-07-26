@@ -13,7 +13,7 @@ workflow = Workflow(version="0.1", description="MAG and SGB workflow")
 workflow.add_argument("adapter", desc="Adapter sequence to trim")
 workflow.add_argument("genome", desc="File name of yeast genome")
 workflow.add_argument("rna-coding", desc="File name of rna coding fasta for decontamination")
-workflow.add_argument("mitochrom", desc="Name of mitochondrion chromosome in reference sequence")
+workflow.add_argument("mitochrom", desc="Name of mitochondrion chromosome in reference sequence", default="")
 workflow.add_argument("input-extension", desc="The input file extension", default="fastq.gz")
 workflow.add_argument("tophat-args", desc="Extra tophat arguments", default="")
 workflow.add_argument("min-read-length", desc="Minimum cleaned read length", type=int, default=23)
@@ -380,12 +380,13 @@ def get_chromo_coverage(name):
 	command = "grep " + mitochrom + " [depends[0]] > [targets[0]]"
 	return str(command)
 
-for name in names:
-	workflow.add_task(actions=get_chromo_coverage(name),
-		depends=list_depends(name=name, step="get_chromo_coverage"),
-		targets=list_targets(name=name, step="get_chromo_coverage"),
-		name="Get chromosome coverage depth for " + name
-		)
+if mitochrom != "":
+	for name in names:
+		workflow.add_task(actions=get_chromo_coverage(name),
+			depends=list_depends(name=name, step="get_chromo_coverage"),
+			targets=list_targets(name=name, step="get_chromo_coverage"),
+			name="Get chromosome coverage depth for " + name
+			)
 
 ##########################
 # remove temporary files #
