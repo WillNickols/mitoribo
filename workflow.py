@@ -16,8 +16,8 @@ workflow.add_argument("rna-coding", desc="File name of rna coding fasta for deco
 workflow.add_argument("gene-file", desc="gff file with yeast genes for TopHat -G")
 workflow.add_argument("mitochrom", desc="Name of mitochondrion chromosome in reference sequence", default="")
 workflow.add_argument("input-extension", desc="The input file extension", default="fastq.gz")
-workflow.add_argument("cutadapt-3", desc="cutadapt 3 prime trim", type=int, default=0)
-workflow.add_argument("cutadapt-5", desc="cutadapt 5 prime trim", type=int, default=1)
+workflow.add_argument("cutadapt-three", desc="cutadapt 3 prime trim", type=int, default=0)
+workflow.add_argument("cutadapt-five", desc="cutadapt 5 prime trim", type=int, default=1)
 workflow.add_argument("cutadapt-min-adaptor-match", desc="cutadapt minimum adaptor match", type=int, default=6)
 workflow.add_argument("cutadapt-args", desc="extra cutadapt arguments", default="")
 workflow.add_argument("min-read-length", desc="Minimum cleaned read length", type=int, default=20)
@@ -105,13 +105,13 @@ local_jobs = args.jobs
 def list_depends(name, step):
 	if step == "gunzip":
 		depends_list = [os.path.abspath(in_dir.rstrip("/")) + "/" + name + "." + input_extension]
-	elif step == "cutadapt_3":
+	elif step == "cutadapt_three":
 		if input_extension == "fastq":
 			depends_list = [os.path.abspath(in_dir.rstrip("/")) + "/" + name + ".fastq"]
 		else:
 			depends_list = [gunzip_dir + name + ".fastq"]
 	elif step == "cutadapt":
-		if args.cutadapt_3 > 0:
+		if args.cutadapt_three > 0:
 			depends_list = [cut_reads + name + "_tmp.fastq"]
 		else:
 			if input_extension == "fastq":
@@ -233,19 +233,19 @@ if input_extension == "fastq.gz":
 ################
 
 def cutadapt_3(name):
-	command = "cutadapt -u -" + str(args.cutadapt_3) + " -o [targets[0]] [depends[0]]"
+	command = "cutadapt -u -" + str(args.cutadapt_three) + " -o [targets[0]] [depends[0]]"
 	return str(command)
 
-if args.cutadapt_3 > 0:
+if args.cutadapt_three > 0:
 	for name in names:
 		workflow.add_task(actions=cutadapt_3(name),
-			depends=list_depends(name=name, step="cutadapt_3"),
-			targets=list_targets(name=name, step="cutadapt_3"),
+			depends=list_depends(name=name, step="cutadapt_three"),
+			targets=list_targets(name=name, step="cutadapt_three"),
 			name="Cut 3 prime before cutadapt for " + name
 			)
 
 def cutadapt(name):
-	command = "cutadapt --discard-untrimmed -m" + str(args.min_read_length) + " -M" + str(args.max_read_length) +  " -O" + str(args.cutadapt_min_adaptor_match) + " -u " + str(args.cutadapt_5) + " -a " + adapter_seq + " " + str(args.cutadapt_args) + " -o [targets[0]] [depends[0]]"
+	command = "cutadapt --discard-untrimmed -m" + str(args.min_read_length) + " -M" + str(args.max_read_length) +  " -O" + str(args.cutadapt_min_adaptor_match) + " -u " + str(args.cutadapt_five) + " -a " + adapter_seq + " " + str(args.cutadapt_args) + " -o [targets[0]] [depends[0]]"
 	return str(command)
 
 for name in names:
