@@ -47,11 +47,11 @@ An example run is:
   -i /media/czh/Zanlin_Chuankai001/MitoRibo_20230726/input/ \
   -o /media/czh/Zanlin_Chuankai001/MitoRibo_20230726/output/ \
   --adapter CTGTAGGCACCATCAAT \
-  --genome /media/czh/Zanlin_Chuankai001/MitoRibo_20230726/refseq/GCF_000146045.2_R64_genomic.fna \
+  --genome /media/czh/Zanlin_Chuankai001/MitoRibo_20230726/refseq/genome.fna \
   --rna-coding /media/czh/Zanlin_Chuankai001/MitoRibo_20230726/refseq/rna_coding.fasta \
-  --mitochrom NC_001224.1 \
-  --input-extension fastq \
-  --keep-intermediates \
+  --gene-file /media/czh/Zanlin_Chuankai001/MitoRibo_20230726/refseq/saccharomyces_cerevisiae.gff \
+  --mitochrom chrmt \
+  --input-extension fastq.gz \
   --cores 4 \
   --local-jobs 8
 ```
