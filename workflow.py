@@ -24,7 +24,7 @@ workflow.add_argument("min-read-length", desc="Minimum cleaned read length", typ
 workflow.add_argument("max-read-length", desc="Maximum cleaned read length", type=int, default=45)
 workflow.add_argument("tophat-a", desc="tophat a argument", type=int, default=4)
 workflow.add_argument("tophat-i", desc="tophat i argument", type=int, default=40)
-workflow.add_argument("tophat-i", desc="tophat I argument", type=int, default=2000)
+workflow.add_argument("tophat-I", desc="tophat I argument", type=int, default=2000)
 workflow.add_argument("tophat-max-ins-length", desc="tophat max insertion length", type=int, default=0)
 workflow.add_argument("tophat-max-del-length", desc="tophat max deletion length", type=int, default=0)
 workflow.add_argument("tophat-args", desc="Extra tophat arguments", default="")
