@@ -13,11 +13,21 @@ workflow = Workflow(version="0.1", description="MAG and SGB workflow")
 workflow.add_argument("adapter", desc="Adapter sequence to trim")
 workflow.add_argument("genome", desc="File name of yeast genome")
 workflow.add_argument("rna-coding", desc="File name of rna coding fasta for decontamination")
+workflow.add_argument("gene-file", desc="gff file with yeast genes for TopHat -G")
 workflow.add_argument("mitochrom", desc="Name of mitochondrion chromosome in reference sequence", default="")
 workflow.add_argument("input-extension", desc="The input file extension", default="fastq.gz")
+workflow.add_argument("cutadapt-3", desc="cutadapt 3 prime trim", type=int, default=0)
+workflow.add_argument("cutadapt-5", desc="cutadapt 5 prime trim", type=int, default=1)
+workflow.add_argument("cutadapt-min-adaptor-match", desc="cutadapt minimum adaptor match", type=int, default=6)
+workflow.add_argument("cutadapt-args", desc="extra cutadapt arguments", default="")
+workflow.add_argument("min-read-length", desc="Minimum cleaned read length", type=int, default=20)
+workflow.add_argument("max-read-length", desc="Maximum cleaned read length", type=int, default=45)
+workflow.add_argument("tophat-a", desc="tophat a argument", type=int, default=4)
+workflow.add_argument("tophat-i", desc="tophat i argument", type=int, default=40)
+workflow.add_argument("tophat-i", desc="tophat I argument", type=int, default=2000)
+workflow.add_argument("tophat-max-ins-length", desc="tophat max insertion length", type=int, default=0)
+workflow.add_argument("tophat-max-del-length", desc="tophat max deletion length", type=int, default=0)
 workflow.add_argument("tophat-args", desc="Extra tophat arguments", default="")
-workflow.add_argument("min-read-length", desc="Minimum cleaned read length", type=int, default=23)
-workflow.add_argument("max-read-length", desc="Maximum cleaned read length", type=int, default=41)
 workflow.add_argument("keep-intermediates", desc="Don't delete intermediate files", action="store_true")
 workflow.add_argument("cores", desc="The number of CPU cores allocated to the job", type=int, default=1)
 args = workflow.parse_args()
@@ -67,9 +77,6 @@ os.makedirs(genome_bt, exist_ok=True)
 cut_reads = tmp_dir + "cut_reads/"
 os.makedirs(cut_reads, exist_ok=True)
 
-cut_reads_5 = tmp_dir + "5_cut_reads/"
-os.makedirs(cut_reads_5, exist_ok=True)
-
 cleaned_reads = output + "cleaned_reads/"
 os.makedirs(cleaned_reads, exist_ok=True)
 
@@ -98,18 +105,24 @@ local_jobs = args.jobs
 def list_depends(name, step):
 	if step == "gunzip":
 		depends_list = [os.path.abspath(in_dir.rstrip("/")) + "/" + name + "." + input_extension]
-	elif step == "cutadapt":
+	elif step == "cutadapt_3":
 		if input_extension == "fastq":
 			depends_list = [os.path.abspath(in_dir.rstrip("/")) + "/" + name + ".fastq"]
 		else:
 			depends_list = [gunzip_dir + name + ".fastq"]
+	elif step == "cutadapt":
+		if args.cutadapt_3 > 0:
+			depends_list = [cut_reads + name + "_tmp.fastq"]
+		else:
+			if input_extension == "fastq":
+				depends_list = [os.path.abspath(in_dir.rstrip("/")) + "/" + name + ".fastq"]
+			else:
+				depends_list = [gunzip_dir + name + ".fastq"]
 		return depends_list
-	elif step == "cut_5_reads":
-		depends_list = [cut_reads + name + ".fastq"]
 	elif step == "split_tRNAs":
 		depends_list = [os.path.abspath(args.rna_coding)]
 	elif step == "decon_non_tRNA":
-		depends_list = [cut_reads_5 + name + ".fastq",
+		depends_list = [cut_reads + name + ".fastq",
 		decon_dir + "nontRNA.1.ebwt", 
 		decon_dir + "nontRNA.2.ebwt", 
 		decon_dir + "nontRNA.3.ebwt", 
@@ -155,10 +168,10 @@ def list_depends(name, step):
 def list_targets(name, step):
 	if step == "gunzip":
 		target_list = [gunzip_dir + name + ".fastq"]
+	elif step == "cutadapt3":
+		target_list = [cut_reads + name + "_tmp.fastq"]
 	elif step == "cutadapt":
 		target_list = [cut_reads + name + ".fastq"]
-	elif step == "cut_5_reads":
-		target_list = [cut_reads_5 + name + ".fastq"]
 	elif step == "split_tRNAs":
 		target_list = [decon_dir + "nontRNA.1.ebwt", 
 		decon_dir + "nontRNA.2.ebwt", 
@@ -219,8 +232,20 @@ if input_extension == "fastq.gz":
 # run cutadapt #
 ################
 
+def cutadapt_3(name):
+	command = "cutadapt -u -" + str(args.cutadapt_3) + " -o [targets[0]] [depends[0]]"
+	return str(command)
+
+if args.cutadapt_3 > 0:
+	for name in names:
+		workflow.add_task(actions=cutadapt_3(name),
+			depends=list_depends(name=name, step="cutadapt_3"),
+			targets=list_targets(name=name, step="cutadapt_3"),
+			name="Cut 3 prime before cutadapt for " + name
+			)
+
 def cutadapt(name):
-	command = "cutadapt -a " + adapter_seq + " -o [targets[0]] [depends[0]]"
+	command = "cutadapt --discard-untrimmed -m" + str(args.min_read_length) + " -M" + str(args.max_read_length) +  " -O" + str(args.cutadapt_min_adaptor_match) + " -u " + str(args.cutadapt_5) + " -a " + adapter_seq + " " + str(args.cutadapt_args) " -o [targets[0]] [depends[0]]"
 	return str(command)
 
 for name in names:
@@ -228,21 +253,6 @@ for name in names:
 		depends=list_depends(name=name, step="cutadapt"),
 		targets=list_targets(name=name, step="cutadapt"),
 		name="Cutadapt for " + name
-		)
-
-###################
-# cut 5-prime end #
-###################
-
-def cut_5_reads_fun(name):
-	command = "python " + scripts_folder + "chop_first_nuc.py -i [depends[0]] -o [targets[0]] --min " + str(args.min_read_length)
-	return str(command)
-
-for name in names:
-	workflow.add_task(actions=cut_5_reads_fun(name),
-		depends=list_depends(name=name, step="cut_5_reads"),
-		targets=list_targets(name=name, step="cut_5_reads"),
-		name="Cut 1 nt on 5-prime end for " + name
 		)
 
 #################################
@@ -343,7 +353,7 @@ workflow.add_task(actions=build_ref_bowtie_db(name),
 ##############
 
 def tophat(name):
-	command = "tophat -p " + str(cores) + " " + str(tophat_args) + " -o " + tophat_out + name + " " + genome_bt + "full_genome [depends[0]]"
+	command = "tophat -a" + str(args.tophat_a) + " -i" + str(args.tophat_i) + " -I" + str(args.tophat_I) + " -g1  --max-insertion-length " + str(args.tophat_max_ins_length) + " --max-deletion-length " + str(args.tophat_max_del_length) + " -G " + str(args.gene_file) " --no-novel-juncs -p " + str(cores) + " " + str(tophat_args) + " -o " + tophat_out + name + " " + genome_bt + "full_genome [depends[0]]"
 	return str(command)
 
 for name in names:
