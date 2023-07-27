@@ -378,11 +378,12 @@ def tophat(name):
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=tophat(name),
-		depends=list_depends(name=name, step="tophat"),
-		targets=list_targets(name=name, step="tophat"),
-		name="Run tophat for " + name
-		)
+	if not os.path.exists(list_targets(name, "tophat")[0]):
+		workflow.add_task(actions=tophat(name),
+			depends=list_depends(name=name, step="tophat"),
+			targets=list_targets(name=name, step="tophat"),
+			name="Run tophat for " + name
+			)
 
 ################
 # run samtools #
