@@ -370,7 +370,7 @@ for name in names:
 def samtools(name):
 	command = '''{a} && {b}'''.format(
 		a = "samtools index [depends[0]]",
-		b = "samtools depth -a [depends[0]] > [targets[0]]"
+		b = "samtools depth -d 0 -a [depends[0]] > [targets[0]]"
 		)
 
 	return str(command)
