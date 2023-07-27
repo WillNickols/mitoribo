@@ -12,7 +12,7 @@ conda activate mitoribo
 ```
 
 ## Databases
-Create a folder called `refseqs` and download a yeast genome into it (such as [this one](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000146045.2/)). Also, download RNA genes for decontamination (such as [this set](http://sgd-archive.yeastgenome.org/sequence/S288C_reference/rna/)).
+Create a folder called `refseq` and download the yeast genome GFF into it (such as [this one](http://sgd-archive.yeastgenome.org/curation/chromosomal_feature/saccharomyces_cerevisiae.gff.gz)). Split this file so that the appended chromosomes are their own fasta file (e.g., `tail -n 151990 saccharomyces_cerevisiae.gff > genome.fna`). Also, download RNA genes for decontamination (such as [this set](http://sgd-archive.yeastgenome.org/sequence/S288C_reference/rna/)).
 
 ## Running
 Running the workflow requires:
@@ -25,20 +25,62 @@ Running the workflow requires:
 
 The workflow also allows extra arguments to TopHat2 as a string in quotes, an option to keep intermediate files, a minimum and maximum read length for calculating coverage, a chromosome for which to subset the coverage (the chromosome's yeast genome fasta header line up to the first space), the number of CPUs to use per task if the task allows multithreading, and the maximum number of tasks to run at once.
 ```
-[PATH TO PYTHON3 WITH ANADAMA2] workflow.py \
-  -i [FOLDER WITH FASTQS] \
-  -o [OUTPUT FOLDER] \
-  --adapter [ADAPTER SEQUENCE] \
-  --genome [PATH TO YEAST GENOME] \
-  --rna-coding [PATH TO RNA CODING FILE] \
-  --input-extension [fastq/fastq.gz] \
-  (--mitochrom [DEFAULT:None]) \
-  (--tophat-args="[DEFAULT:None]") \
-  (--keep-intermediates) \
-  (--min-read-length [DEFAULT:23]) \
-  (--max-read-length [DEFAULT:41]) \
-  (--cores [DEFAULT:1]) \
-  (--local-jobs [DEFAULT:1])
+<PATH TO PYTHON3 WITH ANADAMA2>python3 workflow.py \
+  -i <INPUT DIRECTORY> \
+  -o <OUTPUT DIRECTORY> \
+  --adapter <ADAPTER> \
+  --genome <GENOME>.fa \
+  --rna-coding <RNA GENES FILE>.fa \
+  --gene-file <YEAST GENES FILE>.gff
+```
+
+The following options can be used to additionally customize the run:
+```
+  --mitochrom MITOCHROM
+                        Name of mitochondrion chromosome in genome file for which to subset coverage
+                        [default: (none, skips step)]
+  --input-extension INPUT_EXTENSION
+                        The input file extension (fastq/fastq.gz)
+                        [default: fastq.gz]
+  --cutadapt-three CUTADAPT_THREE
+                        Amount to trim the raw 3 prime end with cutadapt
+                        [default: 0]
+  --cutadapt-five CUTADAPT_FIVE
+                        Amount to trim the raw 5 prime end with cutadapt
+                        [default: 1]
+  --cutadapt-min-adaptor-match CUTADAPT_MIN_ADAPTOR_MATCH
+                        Cutadapt's --overlap
+                        [default: 6]
+  --cutadapt-args CUTADAPT_ARGS
+                        extra cutadapt arguments
+                        [default: (none)]
+  --min-read-length MIN_READ_LENGTH
+                        Minimum cleaned read length
+                        [default: 20]
+  --max-read-length MAX_READ_LENGTH
+                        Maximum cleaned read length
+                        [default: 45]
+  --tophat-a TOPHAT_A   TopHat's -a argument
+                        [default: 4]
+  --tophat-i TOPHAT_I   TopHat's -i argument
+                        [default: 40]
+  --tophat-I TOPHAT_I   TopHat's -I argument
+                        [default: 2000]
+  --tophat-max-ins-length TOPHAT_MAX_INS_LENGTH
+                        TopHat's --max-insertion-length
+                        [default: 0]
+  --tophat-max-del-length TOPHAT_MAX_DEL_LENGTH
+                        TopHat's --max-deletion-length
+                        [default: 0]
+  --tophat-args TOPHAT_ARGS
+                        Extra tophat arguments
+                        [default: (none)]
+  --keep-intermediates  Don't delete intermediate files
+  --cores CORES         The number of CPU cores allocated to each task
+                        [default: 1]
+  --local-jobs JOBS     Number of tasks to execute in parallel
+                        [default: 1]
+  --dry-run             Print tasks to be run but don't execute their actions
 ```
 
 An example run is:
@@ -74,7 +116,7 @@ The output folder will contain the following items:
 ## SRA Downloader
 The `scripts/download_files.py` script can be used to download many fastq files in parallel like:
 ```
-[PATH TO PYTHON3 WITH ANADAMA2] scripts/download_files.py -i to_download.txt -o [OUTPUT_FOLDER] --local-jobs [N]
+<PATH TO PYTHON3 WITH ANADAMA2>python3 scripts/download_files.py -i to_download.txt -o [OUTPUT_FOLDER] --local-jobs [N]
 ```
 where `to_download.txt` has one SRR identifier per line and N is the number of parallel downloads. If some downloads fail, you can run the script again, and already-downloaded files will be skipped.
 

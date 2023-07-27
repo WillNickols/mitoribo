@@ -4,8 +4,8 @@ import argparse
 
 def main():
     parser = argparse.ArgumentParser(description="Get the length distribution of reads for alignment.")
-    parser.add_argument("-i", "--input_file", help="Path to the input FASTQ file.")
-    parser.add_argument("-o", "--output_file", help="Path to the output FASTQ file with modified headers.")
+    parser.add_argument("-i", "--input_file", help="Path to the input bam file.")
+    parser.add_argument("-o", "--output_file", help="Path to the output csv file.")
     args = parser.parse_args()
 
     read_lengths = []
