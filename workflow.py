@@ -245,7 +245,7 @@ if args.cutadapt_3 > 0:
 			)
 
 def cutadapt(name):
-	command = "cutadapt --discard-untrimmed -m" + str(args.min_read_length) + " -M" + str(args.max_read_length) +  " -O" + str(args.cutadapt_min_adaptor_match) + " -u " + str(args.cutadapt_5) + " -a " + adapter_seq + " " + str(args.cutadapt_args) " -o [targets[0]] [depends[0]]"
+	command = "cutadapt --discard-untrimmed -m" + str(args.min_read_length) + " -M" + str(args.max_read_length) +  " -O" + str(args.cutadapt_min_adaptor_match) + " -u " + str(args.cutadapt_5) + " -a " + adapter_seq + " " + str(args.cutadapt_args) + " -o [targets[0]] [depends[0]]"
 	return str(command)
 
 for name in names:
@@ -353,7 +353,7 @@ workflow.add_task(actions=build_ref_bowtie_db(name),
 ##############
 
 def tophat(name):
-	command = "tophat -a" + str(args.tophat_a) + " -i" + str(args.tophat_i) + " -I" + str(args.tophat_I) + " -g1  --max-insertion-length " + str(args.tophat_max_ins_length) + " --max-deletion-length " + str(args.tophat_max_del_length) + " -G " + str(args.gene_file) " --no-novel-juncs -p " + str(cores) + " " + str(tophat_args) + " -o " + tophat_out + name + " " + genome_bt + "full_genome [depends[0]]"
+	command = "tophat -a" + str(args.tophat_a) + " -i" + str(args.tophat_i) + " -I" + str(args.tophat_I) + " -g1  --max-insertion-length " + str(args.tophat_max_ins_length) + " --max-deletion-length " + str(args.tophat_max_del_length) + " -G " + str(args.gene_file) + " --no-novel-juncs -p " + str(cores) + " " + str(tophat_args) + " -o " + tophat_out + name + " " + genome_bt + "full_genome [depends[0]]"
 	return str(command)
 
 for name in names:
