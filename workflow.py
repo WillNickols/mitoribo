@@ -222,11 +222,14 @@ def gunzip(name):
 
 if input_extension == "fastq.gz":
 	for name in names:
-		workflow.add_task(actions=gunzip(name),
-			depends=list_depends(name=name, step="gunzip"),
-			targets=list_targets(name=name, step="gunzip"),
-			name="Decompress " + name
-			)
+		if not args.keep_intermediates and os.path.exists(list_targets(name, "tophat")[0]):
+			pass
+		else:
+			workflow.add_task(actions=gunzip(name),
+				depends=list_depends(name=name, step="gunzip"),
+				targets=list_targets(name=name, step="gunzip"),
+				name="Decompress " + name
+				)
 
 ################
 # run cutadapt #
@@ -238,22 +241,28 @@ def cutadapt_3(name):
 
 if args.cutadapt_three > 0:
 	for name in names:
-		workflow.add_task(actions=cutadapt_3(name),
-			depends=list_depends(name=name, step="cutadapt_three"),
-			targets=list_targets(name=name, step="cutadapt_three"),
-			name="Cut 3 prime before cutadapt for " + name
-			)
+		if not args.keep_intermediates and os.path.exists(list_targets(name, "tophat")[0]):
+			pass
+		else:
+			workflow.add_task(actions=cutadapt_3(name),
+				depends=list_depends(name=name, step="cutadapt_three"),
+				targets=list_targets(name=name, step="cutadapt_three"),
+				name="Cut 3 prime before cutadapt for " + name
+				)
 
 def cutadapt(name):
 	command = "cutadapt --discard-untrimmed -m" + str(args.min_read_length) + " -M" + str(args.max_read_length) +  " -O" + str(args.cutadapt_min_adaptor_match) + " -u " + str(args.cutadapt_five) + " -a " + adapter_seq + " " + str(args.cutadapt_args) + " -o [targets[0]] [depends[0]]"
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=cutadapt(name),
-		depends=list_depends(name=name, step="cutadapt"),
-		targets=list_targets(name=name, step="cutadapt"),
-		name="Cutadapt for " + name
-		)
+	if not args.keep_intermediates and os.path.exists(list_targets(name, "tophat")[0]):
+		pass
+	else:
+		workflow.add_task(actions=cutadapt(name),
+			depends=list_depends(name=name, step="cutadapt"),
+			targets=list_targets(name=name, step="cutadapt"),
+			name="Cutadapt for " + name
+			)
 
 #################################
 # build decontamination indexes #
@@ -283,11 +292,14 @@ def decon_non_tRNA_fun(name):
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=decon_non_tRNA_fun(name),
-		depends=list_depends(name=name, step="decon_non_tRNA"),
-		targets=list_targets(name=name, step="decon_non_tRNA"),
-		name="Decontaminate the non-tRNA for " + name
-		)
+	if not args.keep_intermediates and os.path.exists(list_targets(name, "tophat")[0]):
+		pass
+	else:
+		workflow.add_task(actions=decon_non_tRNA_fun(name),
+			depends=list_depends(name=name, step="decon_non_tRNA"),
+			targets=list_targets(name=name, step="decon_non_tRNA"),
+			name="Decontaminate the non-tRNA for " + name
+			)
 
 ##############################
 # remove 3 nt for tRNA decon #
@@ -298,11 +310,14 @@ def last_3_nucs_gone_fun(name):
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=last_3_nucs_gone_fun(name),
-		depends=list_depends(name=name, step="last_3_nucs_gone"),
-		targets=list_targets(name=name, step="last_3_nucs_gone"),
-		name="Remove last 3 nucleotides for decontaminating " + name
-		)
+	if not args.keep_intermediates and os.path.exists(list_targets(name, "tophat")[0]):
+		pass
+	else:
+		workflow.add_task(actions=last_3_nucs_gone_fun(name),
+			depends=list_depends(name=name, step="last_3_nucs_gone"),
+			targets=list_targets(name=name, step="last_3_nucs_gone"),
+			name="Remove last 3 nucleotides for decontaminating " + name
+			)
 
 ######################
 # decontaminate tRNA #
@@ -313,11 +328,14 @@ def decon_tRNA_fun(name):
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=decon_tRNA_fun(name),
-		depends=list_depends(name=name, step="decon_tRNA"),
-		targets=list_targets(name=name, step="decon_tRNA"),
-		name="Decontaminate the tRNA for " + name
-		)
+	if not args.keep_intermediates and os.path.exists(list_targets(name, "tophat")[0]):
+		pass
+	else:
+		workflow.add_task(actions=decon_tRNA_fun(name),
+			depends=list_depends(name=name, step="decon_tRNA"),
+			targets=list_targets(name=name, step="decon_tRNA"),
+			name="Decontaminate the tRNA for " + name
+			)
 
 ################################################
 # subset reads to only the decontaminated ones #
@@ -328,11 +346,14 @@ def subset_reads_fun(name):
 	return str(command)
 
 for name in names:
-	workflow.add_task(actions=subset_reads_fun(name),
-		depends=list_depends(name=name, step="subset_reads"),
-		targets=list_targets(name=name, step="subset_reads"),
-		name="Finish decontaminating for " + name
-		)
+	if not args.keep_intermediates and os.path.exists(list_targets(name, "tophat")[0]):
+		pass
+	else:
+		workflow.add_task(actions=subset_reads_fun(name),
+			depends=list_depends(name=name, step="subset_reads"),
+			targets=list_targets(name=name, step="subset_reads"),
+			name="Finish decontaminating for " + name
+			)
 
 ################################
 # build tophat reference index #
