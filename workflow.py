@@ -168,7 +168,7 @@ def list_depends(name, step):
 def list_targets(name, step):
 	if step == "gunzip":
 		target_list = [gunzip_dir + name + ".fastq"]
-	elif step == "cutadapt3":
+	elif step == "cutadapt_three":
 		target_list = [cut_reads + name + "_tmp.fastq"]
 	elif step == "cutadapt":
 		target_list = [cut_reads + name + ".fastq"]
