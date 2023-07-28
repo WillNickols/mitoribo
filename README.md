@@ -1,4 +1,4 @@
-# mitoribo
+# MitoRibo
 Bioinformatics workflow for ribosome sequencing of yeast
 
 ## Installation
