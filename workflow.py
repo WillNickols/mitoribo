@@ -217,7 +217,7 @@ def list_targets(name, step):
 ############################
 
 def gunzip(name):
-	command = "gunzip -c [depends[0]] > [targets[0]]"
+	command = "gunzip -c " + list_depends(name=name, step="gunzip")[0].replace(" ", "\ ") + " > " + list_targets(name=name, step="gunzip")[0].replace(" ", "\ ")
 	return str(command)
 
 if input_extension == "fastq.gz":
@@ -236,7 +236,7 @@ if input_extension == "fastq.gz":
 ################
 
 def cutadapt_3(name):
-	command = "cutadapt -u -" + str(args.cutadapt_three) + " -o [targets[0]] [depends[0]]"
+	command = "cutadapt -u -" + str(args.cutadapt_three) + " -o " + list_targets(name=name, step="cutadapt_three")[0].replace(" ", "\ ") + " " + list_depends(name=name, step="cutadapt_three")[0].replace(" ", "\ ")
 	return str(command)
 
 if args.cutadapt_three > 0:
@@ -251,7 +251,7 @@ if args.cutadapt_three > 0:
 				)
 
 def cutadapt(name):
-	command = "cutadapt --discard-untrimmed -m" + str(args.min_read_length) + " -M" + str(args.max_read_length) +  " -O" + str(args.cutadapt_min_adaptor_match) + " -u " + str(args.cutadapt_five) + " -a " + adapter_seq + " " + str(args.cutadapt_args) + " -o [targets[0]] [depends[0]]"
+	command = "cutadapt --discard-untrimmed -m" + str(args.min_read_length) + " -M" + str(args.max_read_length) +  " -O" + str(args.cutadapt_min_adaptor_match) + " -u " + str(args.cutadapt_five) + " -a " + adapter_seq + " " + str(args.cutadapt_args) + " -o " + list_targets(name=name, step="cutadapt")[0].replace(" ", "\ ") + " " + list_depends(name=name, step="cutadapt")[0].replace(" ", "\ ")
 	return str(command)
 
 for name in names:
@@ -270,9 +270,9 @@ for name in names:
 
 def split_tRNAs_fun(name):
 	command = '''{a} && {b} && {c}'''.format(
-		a = "python " + scripts_folder + "split_tRNAs.py -i [depends[0]] -o " + decon_dir + "rna_coding",
-		b = "bowtie-build " + decon_dir + "rna_coding_nontRNA.fasta " + decon_dir + "nontRNA",
-		c = "bowtie-build " + decon_dir + "rna_coding_tRNA.fasta " + decon_dir + "tRNA"
+		a = "python " + scripts_folder.replace(" ", "\ ") + "split_tRNAs.py -i " + list_depends(name="", step="split_tRNAs")[0].replace(" ", "\ ") + " -o " + decon_dir.replace(" ", "\ ") + "rna_coding",
+		b = "bowtie-build " + decon_dir.replace(" ", "\ ") + "rna_coding_nontRNA.fasta " + decon_dir.replace(" ", "\ ") + "nontRNA",
+		c = "bowtie-build " + decon_dir.replace(" ", "\ ") + "rna_coding_tRNA.fasta " + decon_dir.replace(" ", "\ ") + "tRNA"
 		)
 
 	return str(command)
@@ -288,7 +288,7 @@ workflow.add_task(actions=split_tRNAs_fun(name),
 ##########################
 
 def decon_non_tRNA_fun(name):
-	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir + "nontRNA [depends[0]] /dev/null --un [targets[0]]"
+	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir.replace(" ", "\ ") + "nontRNA " + list_depends(name=name, step="decon_non_tRNA")[0].replace(" ", "\ ") + " /dev/null --un " + list_targets(name=name, step="decon_non_tRNA")[0].replace(" ", "\ ")
 	return str(command)
 
 for name in names:
@@ -306,7 +306,7 @@ for name in names:
 ##############################
 
 def last_3_nucs_gone_fun(name):
-	command = "python " + scripts_folder + "chop_last_3_nuc.py -i [depends[0]] -o [targets[0]]"
+	command = "python " + scripts_folder.replace(" ", "\ ") + "chop_last_3_nuc.py -i " + list_depends(name=name, step="last_3_nucs_gone")[0].replace(" ", "\ ") + " -o " + list_targets(name=name, step="last_3_nucs_gone")[0].replace(" ", "\ ")
 	return str(command)
 
 for name in names:
@@ -324,7 +324,7 @@ for name in names:
 ######################
 
 def decon_tRNA_fun(name):
-	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir + "nontRNA [depends[0]] /dev/null --un [targets[0]]"
+	command = "bowtie --threads " + str(cores) + " --sam " + decon_dir.replace(" ", "\ ") + "nontRNA " + list_depends(name=name, step="decon_tRNA")[0].replace(" ", "\ ") + " /dev/null --un " + list_targets(name=name, step="decon_tRNA")[0].replace(" ", "\ ")
 	return str(command)
 
 for name in names:
@@ -342,7 +342,7 @@ for name in names:
 ################################################
 
 def subset_reads_fun(name):
-	command = "python " + scripts_folder + "keep_decon_reads.py -i [depends[0]] --decon [depends[1]] -o [targets[0]] --min " + str(args.min_read_length) + " --max " + str(args.max_read_length)
+	command = "python " + scripts_folder.replace(" ", "\ ") + "keep_decon_reads.py -i " + list_depends(name=name, step="subset_reads")[0].replace(" ", "\ ") + " --decon " + list_depends(name=name, step="subset_reads")[1].replace(" ", "\ ") + " -o " + list_targets(name=name, step="subset_reads")[0].replace(" ", "\ ") + " --min " + str(args.min_read_length) + " --max " + str(args.max_read_length)
 	return str(command)
 
 for name in names:
@@ -360,7 +360,7 @@ for name in names:
 ################################
 
 def build_ref_bowtie_db(name):
-	command = "bowtie2-build [depends[0]] " + genome_bt + "full_genome"
+	command = "bowtie2-build " + list_depends(name="", step="build_ref_bowtie_db")[0].replace(" ", "\ ") + " " + genome_bt.replace(" ", "\ ") + "full_genome"
 	return str(command)
 
 workflow.add_task(actions=build_ref_bowtie_db(name),
@@ -374,7 +374,7 @@ workflow.add_task(actions=build_ref_bowtie_db(name),
 ##############
 
 def tophat(name):
-	command = "tophat -a" + str(args.tophat_a) + " -i" + str(args.tophat_i) + " -I" + str(args.tophat_I) + " -g1  --max-insertion-length " + str(args.tophat_max_ins_length) + " --max-deletion-length " + str(args.tophat_max_del_length) + " -G " + str(args.gene_file) + " --no-novel-juncs -p " + str(cores) + " " + str(tophat_args) + " -o " + tophat_out + name + " " + genome_bt + "full_genome [depends[0]]"
+	command = "tophat -a" + str(args.tophat_a) + " -i" + str(args.tophat_i) + " -I" + str(args.tophat_I) + " -g1  --max-insertion-length " + str(args.tophat_max_ins_length) + " --max-deletion-length " + str(args.tophat_max_del_length) + " -G " + str(args.gene_file) + " --no-novel-juncs -p " + str(cores) + " " + str(tophat_args) + " -o " + tophat_out.replace(" ", "\ ") + name + " " + genome_bt.replace(" ", "\ ") + "full_genome " + list_depends(name=name, step="tophat")[0].replace(" ", "\ ")
 	return str(command)
 
 for name in names:
@@ -391,8 +391,8 @@ for name in names:
 
 def samtools(name):
 	command = '''{a} && {b}'''.format(
-		a = "samtools index [depends[0]]",
-		b = "samtools depth -d 0 -a [depends[0]] > [targets[0]]"
+		a = "samtools index " + list_depends(name=name, step="samtools")[0].replace(" ", "\ "),
+		b = "samtools depth -d 0 -a " + list_depends(name=name, step="samtools")[0].replace(" ", "\ ") + " > " + list_targets(name=name, step="samtools")[0].replace(" ", "\ ")
 		)
 
 	return str(command)
@@ -409,7 +409,7 @@ for name in names:
 ###########################################
 
 def get_chromo_coverage(name):
-	command = "grep " + mitochrom + " [depends[0]] > [targets[0]]"
+	command = "grep " + mitochrom + " " + list_depends(name=name, step="get_chromo_coverage")[0].replace(" ", "\ ") + " > " + list_targets(name=name, step="get_chromo_coverage")[0].replace(" ", "\ ")
 	return str(command)
 
 if mitochrom != "":
@@ -425,7 +425,7 @@ if mitochrom != "":
 ##########################
 
 if not args.keep_intermediates:
-	workflow.add_task(actions="rm -r " + tmp_dir + " && touch [targets[0]]",
+	workflow.add_task(actions="rm -r " + tmp_dir + " && touch " + list_targets(name="", step="delete_tmp")[0].replace(" ", "\ "),
 		depends=list_depends(name=names, step="delete_tmp"),
 		targets=list_targets(name="", step="delete_tmp"),
 		name="Delete temporary files"
