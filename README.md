@@ -12,7 +12,7 @@ conda activate mitoribo
 ```
 
 ## Databases
-Create a folder called `refseq` and download the yeast genome GFF into it (such as [this one](http://sgd-archive.yeastgenome.org/curation/chromosomal_feature/saccharomyces_cerevisiae.gff.gz)). Split this file so that the appended chromosomes are their own fasta file (e.g., `tail -n 151990 saccharomyces_cerevisiae.gff > genome.fna`). Also, download RNA genes for decontamination (such as [this set](http://sgd-archive.yeastgenome.org/sequence/S288C_reference/rna/)).
+Create a folder called `refseq` and download the yeast genome GFF into it (such as the `saccharomyces_cerevisiae.gff.gz` file in [this directory](http://sgd-archive.yeastgenome.org/curation/chromosomal_feature/)). Split this file so that the appended chromosomes are their own fasta file (e.g., `tail -n 151990 saccharomyces_cerevisiae.gff > genome.fna`). Also, download RNA genes for decontamination (such as the `rna_coding.fasta.gz` file in [this directory](http://sgd-archive.yeastgenome.org/sequence/S288C_reference/rna/)).
 
 ## Running
 Running the workflow requires:
@@ -29,7 +29,7 @@ The workflow also allows extra arguments to TopHat2 as a string in quotes, an op
   -i <INPUT DIRECTORY> \
   -o <OUTPUT DIRECTORY> \
   --adapter <ADAPTER> \
-  --genome <GENOME>.fa \
+  --genome <GENOME>.fna \
   --rna-coding <RNA GENES FILE>.fa \
   --gene-file <YEAST GENES FILE>.gff
 ```
