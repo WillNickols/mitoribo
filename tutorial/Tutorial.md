@@ -74,7 +74,7 @@ We can now run the workflow with the following command:
   --mitochrom chrmt \
   --input-extension fastq.gz \
   --cores 4 \
-  --local-jobs 1 \ 
+  --local-jobs 1 \
   --keep-intermediates
 ```
 
