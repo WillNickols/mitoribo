@@ -63,7 +63,7 @@ plt.ylabel("Coverage (depth per million mitochondrial reads)")
 plt.title("Whole Chromosome Coverage Map")
 plt.grid(True)
 plt.legend()
-plt.savefig(output_dir + 'whole_chromosome_coverage.png')
+plt.savefig(output_dir + 'whole_chromosome_coverage.png', dpi=500)
 
 genes_and_positions = pd.read_csv(this_folder + "mt_genes.csv")
 
@@ -122,7 +122,7 @@ for gene_index, gene_row in genes_and_positions.iterrows():
 
         axs[0].set_ylabel("Coverage (depth per million mitochondrial reads)")
         plt.legend()
-        plt.savefig(output_dir + gene_row['gene'] + '_coverage.png')
+        plt.savefig(output_dir + gene_row['gene'] + '_coverage.png', dpi=500)
         
     else:
         plt.figure(figsize=(10, 6))
@@ -138,4 +138,4 @@ for gene_index, gene_row in genes_and_positions.iterrows():
         plt.title(gene_row['gene'] + " Coverage Map")
         plt.grid(True)
         plt.xticks(rotation=90)
-        plt.savefig(output_dir + gene_row['gene'] + '_coverage.png')
+        plt.savefig(output_dir + gene_row['gene'] + '_coverage.png', dpi=500)
